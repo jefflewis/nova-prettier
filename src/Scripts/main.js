@@ -56,10 +56,28 @@ class PrettierExtension {
 		)
 	}
 
+	getUserDefinedModulePath() {
+		let isUserDefinedModulePathRealtive = false
+		let userDefinedModulePath = getConfigWithWorkspaceOverride(
+			'prettier.module.path'
+		)
+		if (userDefinedModulePath && userDefinedModulePath.startsWith('/')) {
+			isUserDefinedModulePathRealtive = false
+		}
+
+		if (
+			userDefinedModulePath &&
+			isUserDefinedModulePathRealtive &&
+			nova.workspace.path
+		) {
+			userDefinedModulePath = `${nova.workspace.path}/${userDefinedModulePath}`
+		}
+
+		return userDefinedModulePath
+	}
+
 	async startFormatter() {
-		const path =
-			getConfigWithWorkspaceOverride('prettier.module.path') ||
-			(await findPrettier())
+		const path = getUserDefinedModulePath() || (await findPrettier())
 
 		log.info(`Loading prettier at ${path}`)
 		await this.formatter
